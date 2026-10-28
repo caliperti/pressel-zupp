@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clique aqui</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .botao{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:64px;
+    padding:20px 48px;
+    background:#00E676;
+    color:#000;
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border-radius:12px;
+    box-shadow:0 0 32px rgba(0,230,118,.35);
+    transition:transform .12s ease, background .12s ease;
+  }
+  .botao:hover{background:#00FF84}
+  .botao:active{transform:scale(.97)}
+  .botao:focus-visible{outline:3px solid rgba(0,230,118,.9);outline-offset:4px}
+  @media (prefers-reduced-motion:reduce){.botao{transition:none}}
+  @media (max-width:420px){
+    .botao{width:100%;max-width:420px;font-size:20px;padding:20px 24px}
+  }
+</style>
+</head>
+<body>
+
+  <a class="botao" id="cta" href="https://zuppbet.com/a/BGJZ5FJ" rel="noopener">Clique aqui</a>
+
+<script>
+/* ===================== CONFIGURAÇÃO — 3 linhas pra você mexer ===================== */
+
+// 1) Pegue em Events Manager > Fontes de dados > seu pixel (número de 15-16 dígitos).
+var PIXEL_ID = '1139615095246088';
+
+// 2) Seu link de afiliado, SEM parâmetro de subid (ele é anexado abaixo).
+var DESTINO = 'https://zuppbet.com/a/BGJZ5FJ';
+
+// 3) ATENÇÃO: confirme no painel de afiliado do Zuppbet qual é o nome do
+//    parâmetro de subid. Cada plataforma usa um: subid, sub_id, btag, clickid.
+//    Se errar o nome, o clique é registrado do seu lado mas o Zuppbet não
+//    devolve nada no relatório — e aí você não sabe qual criativo depositou.
+//    Deixe '' (vazio) pra não anexar nada enquanto não confirmar.
+var PARAM_SUBID = 'subid';
+
+/* ================================================================================= */
+
+(function () {
+  'use strict';
+
+  var params = new URLSearchParams(location.search);
+
+  // Guarda os UTMs da sessão: se a pessoa recarregar ou voltar, não perde a origem.
+  function lembrar(chave, valor) {
+    try { if (valor) sessionStorage.setItem(chave, valor); } catch (e) {}
+  }
+  function lembrado(chave) {
+    try { return sessionStorage.getItem(chave) || ''; } catch (e) { return ''; }
+  }
+  function param(nome) {
+    var v = params.get(nome);
+    if (v) { lembrar(nome, v); return v; }
+    return lembrado(nome);
+  }
+
+  // ID único do clique. Serve de event_id pra deduplicar com a CAPI depois.
+  function idClique() {
+    var guardado = lembrado('clique_id');
+    if (guardado) return guardado;
+    var novo;
+    try { novo = crypto.randomUUID().split('-')[0]; }
+    catch (e) { novo = Math.floor(performance.now()).toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+    lembrar('clique_id', novo);
+    return novo;
+  }
+
+  // Subid compacto: id do anúncio + id do clique. O ad.id é o que identifica
+  // qual dos 4 criativos trouxe a pessoa; o clique permite casar um a um.
+  function montarSubid() {
+    var anuncio = param('utm_id') || param('utm_content') || 'direto';
+    anuncio = anuncio.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24);
+    return anuncio + '_' + idClique();
+  }
+
+  function urlDestino() {
+    if (!PARAM_SUBID) return DESTINO;
+    var sep = DESTINO.indexOf('?') === -1 ? '?' : '&';
+    return DESTINO + sep + encodeURIComponent(PARAM_SUBID) + '=' + encodeURIComponent(montarSubid());
+  }
+
+  /* ----------------------------- Pixel da Meta ----------------------------- */
+  !function (f, b, e, v, n, t, s) {
+    if (f.fbq) return; n = f.fbq = function () {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+    };
+    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
+    t = b.createElement(e); t.async = !0; t.src = v;
+    s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s)
+  }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+  var pixelValido = /^\d{10,20}$/.test(PIXEL_ID);
+  if (pixelValido) {
+    fbq('init', PIXEL_ID);
+    fbq('track', 'PageView');
+    fbq('track', 'ViewContent', { content_name: 'pressel_zupp' },
+        { eventID: 'vc_' + idClique() });
+  } else {
+    console.warn('[pressel] PIXEL_ID não configurado — nenhum evento será enviado.');
+  }
+
+  /* --------------------------- Clique no botão ---------------------------- */
+  var cta = document.getElementById('cta');
+  cta.href = urlDestino();
+
+  var jaFoi = false;
+  cta.addEventListener('click', function (ev) {
+    if (jaFoi) return;          // evita disparo duplo em toque duplo
+    jaFoi = true;
+    ev.preventDefault();
+
+    var destino = urlDestino();
+
+    if (pixelValido) {
+      fbq('track', 'Lead', { content_name: 'entrada_zupp' },
+          { eventID: 'ld_' + idClique() });
+    }
+
+    // Dá 300ms pro pixel sair antes de trocar de página. O fallback garante
+    // que ninguém fica preso aqui se o pixel estiver bloqueado.
+    setTimeout(function () { location.href = destino; }, 300);
+  });
+})();
+</script>
+
+<noscript>
+  <img height="1" width="1" style="display:none" alt=""
+       src="https://www.facebook.com/tr?id=1139615095246088&ev=PageView&noscript=1">
+</noscript>
+</body>
+</html>
